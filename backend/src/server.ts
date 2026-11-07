@@ -9,7 +9,7 @@ import adminRoutes from './routes/adminRoutes';
 const app = express();
 
 // Middleware
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: process.env.CLIENT_URL || "*" }));
 app.use(express.json());
 
 const PORT = Number(process.env.PORT) || 4000;

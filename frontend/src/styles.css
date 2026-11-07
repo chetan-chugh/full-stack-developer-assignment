@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0e3b43;
+  --ink-2: #145159;
+  --primary: #14747a;
+  --primary-dark: #0f5d62;
+  --accent: #f2b134;
+  --bg: #eef3f4;
+  --surface: #ffffff;
+  --text: #12262a;
+  --muted: #5b7176;
+  --border: #d5e0e2;
+  --danger: #b83227;
+  --font-heading: 'Poppins', system-ui, sans-serif;
+  --font-body: 'Poppins', system-ui, sans-serif;
+  --sidebar-width: 240px;
+  --gap: 28px;
+}
+
+/* Element defaults go in the base layer so Tailwind utilities can override them */
+@layer base {
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+  }
+  h1, h2 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  h1 { margin-top: 0; font-size: 1.5rem; }
+  a { color: var(--primary); }
+  label {
+    display: block;
+    margin-bottom: 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  input, select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-top: 6px;
+    font: inherit;
+    font-weight: 400;
+    color: var(--text);
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+  }
+  select { width: auto; margin: 0; padding: 7px 10px; }
+  input:focus-visible, select:focus-visible, button:focus-visible {
+    outline: 3px solid rgba(20, 116, 122, 0.35);
+    outline-offset: 1px;
+    border-color: var(--primary);
+  }
+  input[aria-invalid='true'] { border-color: var(--danger); }
+  input:disabled { color: var(--muted); background: var(--bg); }
+  button {
+    padding: 10px 18px;
+    font: inherit;
+    font-weight: 600;
+    color: #fff;
+    background: var(--primary);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover:not(:disabled) { background: var(--primary-dark); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  small { display: block; margin: -6px 0 16px; color: var(--muted); }
+  table { width: 100%; font-size: 0.9rem; border-collapse: collapse; }
+  th { font-weight: 600; color: var(--muted); }
+  th, td {
+    padding: 10px 8px;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border);
+  }
+  tbody tr:hover { background: #f7fafa; }
+  code {
+    padding: 2px 6px;
+    font-size: 0.82rem;
+    color: var(--ink);
+    background: var(--bg);
+    border-radius: 4px;
+  }
+}
+
+/* ---------- Shared component classes ---------- */
+.btn-secondary { color: var(--text); background: var(--surface); border: 1.5px solid var(--border); }
+.btn-secondary:hover:not(:disabled) { background: var(--bg); }
+.btn-danger { background: var(--danger); }
+.btn-danger:hover:not(:disabled) { background: #96281f; }
+.error {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: var(--danger);
+  background: #fdf0ee;
+  border-left: 4px solid var(--danger);
+  border-radius: 4px;
+}
+.success {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: #1d6b3a;
+  background: #eaf6ee;
+  border-left: 4px solid #2e9d57;
+  border-radius: 4px;
+}
+.badge {
+  padding: 2px 9px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #2a1f00;
+  background: var(--accent);
+  border-radius: 999px;
+}
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  background: var(--accent);
+  border-radius: 9px 9px 9px 2px;
+}
+
+/* Form fields (used by ProfilePage) */
+.field { margin-bottom: 14px; }
+.field > label { margin-bottom: 6px; }
+.input-wrap { position: relative; }
+.input-wrap input { margin: 0; }
+.field-error { margin: 8px 0 0; font-size: 0.8rem; font-weight: 500; color: var(--danger); }
+.hint { margin: 6px 0 0; }
+
+/* ---------- App shell ---------- */
+.container { padding: var(--gap); }
+.card {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.center { margin-top: 40px; text-align: center; }
+.profile-card { max-width: 560px; }
+
+/* ---------- Tables ---------- */
+.table-wrap { overflow-x: auto; }
+.actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.actions button { padding: 5px 10px; font-size: 0.8rem; }
+.pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 18px; }
+
+/* ---------- Login / Register layout (AuthLayout) ---------- */
+.auth-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100dvh;
+  overflow: hidden;
+}
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 48px;
+  color: #e7f1f2;
+  background: var(--ink);
+}
+.brand-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+}
+.auth-brand h2 { max-width: 14ch; margin: 0 0 14px; font-size: 2.6rem; line-height: 1.08; color: #fff; }
+.auth-brand p { max-width: 38ch; margin: 0; color: #a9c4c7; }
+.demo-chat { display: flex; flex-direction: column; gap: 10px; max-width: 340px; }
+.demo-bubble { padding: 11px 15px; font-size: 0.92rem; line-height: 1.4; border-radius: 16px; }
+.demo-bubble.me { align-self: flex-end; color: #2a1f00; background: var(--accent); border-bottom-right-radius: 4px; }
+.demo-bubble.bot { color: #e7f1f2; background: var(--ink-2); border-bottom-left-radius: 4px; }
+.auth-main {
+  display: flex;
+  padding: 24px 32px;
+  background: var(--surface);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) transparent;
+}
+.auth-main::-webkit-scrollbar { width: 8px; }
+.auth-main::-webkit-scrollbar-track { background: transparent; }
+.auth-main::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 999px; }
+.outline-btn {
+  display: block;
+  padding: 11px;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  border: 1.5px solid var(--primary);
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.outline-btn:hover { background: rgba(20, 116, 122, 0.08); }
+
+@media (max-width: 860px) {
+  .auth-page { grid-template-columns: 1fr; height: auto; overflow: visible; }
+  .auth-brand { padding: 28px; gap: 16px; }
+  .auth-brand h2 { font-size: 1.7rem; }
+  .demo-chat { display: none; }
+  .auth-main { padding: 32px 20px 48px; overflow: visible; }
+}

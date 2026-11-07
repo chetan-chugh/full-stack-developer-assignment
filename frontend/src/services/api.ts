@@ -8,6 +8,7 @@ import type {
   User,
   UserChanges,
 } from "../types";
+const API_BASE = `${import.meta.env.VITE_API_URL || ""}/api`;
 
 const TOKEN_KEY = "token";
 
@@ -48,8 +49,8 @@ async function request<T>(
   if (body) headers["Content-Type"] = "application/json";
   if (token) headers.Authorization = `Bearer ${token}`;
 
-  const response = await fetch(`/api${path}`, {
-    method,
+const response = await fetch(`${API_BASE}${path}`, {
+      method,
     headers,
     body: body ? JSON.stringify(body) : undefined,
   });

@@ -14,12 +14,42 @@ const tabClass = (active: boolean) =>
   }`;
 const fieldClass = 'mb-4';
 const labelClass = 'mb-1.5';
-const inputClass = 'm-0';
+const inputClass = 'm-0 pr-11';
 const fieldErrorClass = 'mt-2 text-[0.8rem] font-medium text-[var(--danger)]';
+const eyeButtonClass =
+  'absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md bg-transparent p-0 text-[var(--muted)] hover:bg-[var(--bg)] hover:text-[var(--primary)]';
 const formErrorClass =
   'mb-4 rounded border-l-4 border-[var(--danger)] bg-[#fdf0ee] px-3 py-2.5 text-[0.9rem] text-[var(--danger)]';
 const successClass =
   'mb-4 rounded border-l-4 border-[#2e9d57] bg-[#eaf6ee] px-3 py-2.5 text-[0.9rem] text-[#1d6b3a]';
+
+function EyeIcon({ off }: { off: boolean }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {off ? (
+        <>
+          <path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-6.5 0-10-7-10-7a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.1 9.1 0 0 1 12 5c6.5 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+          <line x1="1" y1="1" x2="23" y2="23" />
+        </>
+      ) : (
+        <>
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+          <circle cx="12" cy="12" r="3" />
+        </>
+      )}
+    </svg>
+  );
+}
 
 export default function ProfilePage() {
   const { user, updateUser, logout } = useAuth();
@@ -98,6 +128,7 @@ export default function ProfilePage() {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [passwordSaving, setPasswordSaving] = useState(false);
+  const [visiblePasswords, setVisiblePasswords] = useState<Record<string, boolean>>({});
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name: field, value } = e.target;
@@ -132,16 +163,26 @@ export default function ProfilePage() {
   ) => (
     <div className={fieldClass}>
       <label className={labelClass} htmlFor={id}>{label}</label>
-      <input
-        className={inputClass}
-        id={id}
-        name={id}
-        type="password"
-        value={passwords[id]}
-        onChange={handlePasswordChange}
-        autoComplete={autoComplete}
-        aria-invalid={!!passwordFieldErrors[id]}
-      />
+      <div className="relative">
+        <input
+          className={inputClass}
+          id={id}
+          name={id}
+          type={visiblePasswords[id] ? 'text' : 'password'}
+          value={passwords[id]}
+          onChange={handlePasswordChange}
+          autoComplete={autoComplete}
+          aria-invalid={!!passwordFieldErrors[id]}
+        />
+        <button
+          type="button"
+          className={eyeButtonClass}
+          onClick={() => setVisiblePasswords((visible) => ({ ...visible, [id]: !visible[id] }))}
+          aria-label={`${visiblePasswords[id] ? 'Hide' : 'Show'} ${label.toLowerCase()}`}
+        >
+          <EyeIcon off={!!visiblePasswords[id]} />
+        </button>
+      </div>
       {passwordFieldErrors[id] && (
         <p className={fieldErrorClass} role="alert">{passwordFieldErrors[id]}</p>
       )}

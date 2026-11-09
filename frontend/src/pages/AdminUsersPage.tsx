@@ -57,6 +57,7 @@ function describe(action: Action) {
 export default function AdminUsersPage() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const [action, setAction] = useState<Action | null>(null);
@@ -65,7 +66,10 @@ export default function AdminUsersPage() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api.getUsers().then((data) => setUsers(data.users)).catch((err) => setError(getErrorMessage(err)));
+    api.getUsers()
+      .then((data) => setUsers(data.users))
+      .catch((err) => setError(getErrorMessage(err)))
+      .finally(() => setLoading(false));
   }, []);
 
   const closeDialog = () => {
@@ -141,8 +145,19 @@ export default function AdminUsersPage() {
           <thead>
             <tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
           </thead>
-          <tbody>
-            {users.map((u) => {
+          <tbody aria-busy={loading}>
+            {loading
+              ? Array.from({ length: 5 }, (_, index) => (
+                  <tr key={`skeleton-${index}`} aria-hidden="true">
+                    <td><span className="block h-4 w-24 animate-pulse rounded bg-[var(--border)]" /></td>
+                    <td><span className="block h-4 w-40 animate-pulse rounded bg-[var(--border)]" /></td>
+                    <td><span className="block h-9 w-20 animate-pulse rounded bg-[var(--border)]" /></td>
+                    <td><span className="block h-4 w-16 animate-pulse rounded bg-[var(--border)]" /></td>
+                    <td><span className="block h-4 w-20 animate-pulse rounded bg-[var(--border)]" /></td>
+                    <td><span className="block h-8 w-40 animate-pulse rounded bg-[var(--border)]" /></td>
+                  </tr>
+                ))
+              : users.map((u) => {
               const isSelf = u._id === currentUser?._id;
               return (
                 <tr key={u._id}>
@@ -176,6 +191,9 @@ export default function AdminUsersPage() {
                 </tr>
               );
             })}
+            {!loading && !error && users.length === 0 && (
+              <tr><td colSpan={6} className="text-center text-[var(--muted)]">No users found.</td></tr>
+            )}
           </tbody>
         </table>
       </div>

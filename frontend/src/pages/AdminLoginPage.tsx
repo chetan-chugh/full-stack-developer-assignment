@@ -7,6 +7,34 @@ import type { FieldErrors } from '../types';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const fieldErrorClass = 'mt-2 text-[0.8rem] font-medium text-[var(--danger)]';
 
+function EyeIcon({ off }: { off: boolean }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {off ? (
+        <>
+          <path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-6.5 0-10-7-10-7a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A9.1 9.1 0 0 1 12 5c6.5 0 10 7 10 7a18.5 18.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+          <line x1="1" y1="1" x2="23" y2="23" />
+        </>
+      ) : (
+        <>
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" />
+          <circle cx="12" cy="12" r="3" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export default function AdminLoginPage() {
   const { user, loading, adminLogin } = useAuth();
   const navigate = useNavigate();
@@ -90,13 +118,17 @@ export default function AdminLoginPage() {
         <div className="mb-4">
           <label className="mb-1.5" htmlFor="password">Password</label>
           <div className="relative">
-            <input id="password" name="password" className="m-0 pr-16"
+            <input id="password" name="password" className="m-0 pr-11"
                    type={showPassword ? 'text' : 'password'} value={form.password}
                    onChange={handleChange} autoComplete="current-password"
                    aria-invalid={!!fieldErrors.password} />
-            <button type="button" onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md bg-transparent px-2 py-1 text-[0.8rem] font-medium text-[var(--primary)] hover:bg-[var(--bg)]">
-              {showPassword ? 'Hide' : 'Show'}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-1.5 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md bg-transparent p-0 text-[var(--muted)] hover:bg-[var(--bg)] hover:text-[var(--primary)]"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              <EyeIcon off={showPassword} />
             </button>
           </div>
           {fieldErrors.password && <p className={fieldErrorClass} role="alert">{fieldErrors.password}</p>}

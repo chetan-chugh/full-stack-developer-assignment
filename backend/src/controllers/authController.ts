@@ -85,7 +85,11 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const errors: Record<string, string> = {};
 
-    if (typeof email !== 'string' || !email.trim()) errors.email = 'Email is required';
+    if (typeof email !== 'string' || !email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!EMAIL_REGEX.test(email.trim())) {
+      errors.email = 'A valid email is required';
+    }
     if (typeof password !== 'string' || !password) errors.password = 'Password is required';
 
     if (Object.keys(errors).length > 0) {
@@ -95,9 +99,17 @@ export const login = async (req: Request, res: Response) => {
     const cleanEmail = email.trim().toLowerCase();
     const user = await User.findOne({ email: cleanEmail }).select('+password');
 
-    // Same message for a wrong email and a wrong password
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      await logActivity(req, 'login_failed', `Email ${cleanEmail}`, user ? user._id : null);
+    if (!user) {
+      await logActivity(req, 'login_failed', `Email ${cleanEmail}`, null);
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email',
+        errors: { email: 'No account found with this email. Please create an account.' }
+      });
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
+      await logActivity(req, 'login_failed', `Email ${cleanEmail}`, user._id);
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
@@ -125,7 +137,11 @@ export const adminLogin = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     const errors: Record<string, string> = {};
 
-    if (typeof email !== 'string' || !email.trim()) errors.email = 'Email is required';
+    if (typeof email !== 'string' || !email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!EMAIL_REGEX.test(email.trim())) {
+      errors.email = 'A valid email is required';
+    }
     if (typeof password !== 'string' || !password) errors.password = 'Password is required';
 
     if (Object.keys(errors).length > 0) {
@@ -135,8 +151,17 @@ export const adminLogin = async (req: Request, res: Response) => {
     const cleanEmail = email.trim().toLowerCase();
     const user = await User.findOne({ email: cleanEmail }).select('+password');
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      await logActivity(req, 'admin_login_failed', `Email ${cleanEmail}`, user ? user._id : null);
+    if (!user) {
+      await logActivity(req, 'admin_login_failed', `Email ${cleanEmail}`, null);
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this email',
+        errors: { email: 'No account found with this email.' }
+      });
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
+      await logActivity(req, 'admin_login_failed', `Email ${cleanEmail}`, user._id);
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 

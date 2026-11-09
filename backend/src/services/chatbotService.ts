@@ -27,7 +27,7 @@ const RULES: Rule[] = [
     keywords: ["website", "site", "used", "use", "using", "guide", "tutorial", "started", "usage"],
     pattern: /how (do|can|to|we|i).*(use|used|using)|get(ting)? started/,
     reply:
-      'Here is how to use this website: 1) Register with your name, email and a strong password, then log in. 2) Open Chatbot from the left sidebar and type a question, or type "help" to see the topics I know. 3) Open Profile to change your username, update your password, or delete your account. 4) Use Logout in the sidebar when you are done. Admins also see Users and Usage Logs in the sidebar.',
+      'Here is how to use this website:\n1) Register with your name, email and a strong password, then log in.\n2) Open Chatbot from the left sidebar and type a question, or type "help" to see the topics I know.\n3) Open Profile to change your username, update your password, or delete your account.\n4) Use Logout in the sidebar when you are done. Admins also see Users and Usage Logs in the sidebar.',
   },
 
   // --- Registration & login ---

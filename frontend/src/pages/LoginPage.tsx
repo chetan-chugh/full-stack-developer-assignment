@@ -9,7 +9,6 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const labelClass = 'mb-1.5';
 const inputClass = 'm-0';
 const passwordInputClass = 'm-0 pr-11';
-const fieldErrorClass = 'mt-2 text-[0.8rem] font-medium text-[var(--danger)]';
 const formErrorClass =
   'mb-4 rounded border-l-4 border-[var(--danger)] bg-[#fdf0ee] px-3 py-2.5 text-[0.9rem] text-[var(--danger)]';
 const eyeBtnClass =
@@ -45,12 +44,15 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const displayedError =
+    error || Object.values(fieldErrors).filter(Boolean).join(' ');
 
   // Update the field and clear its error while the user types
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
     setFieldErrors({ ...fieldErrors, [name]: '' });
+    setError('');
   };
 
   // Same rules and messages as the backend
@@ -100,14 +102,16 @@ export default function LoginPage() {
         <h1 className="mb-1 text-[1.75rem]">Sign in</h1>
         <p className="mb-[18px] text-[var(--muted)]">Welcome back. Pick up where you left off.</p>
 
-        {error && <p className={formErrorClass} role="alert">{error}</p>}
+        <div className="mb-4 min-h-11">
+          {displayedError && <p id="login-error" className={formErrorClass} role="alert">{displayedError}</p>}
+        </div>
 
         {/* Email */}
         <div className="mb-3.5">
           <label className={labelClass} htmlFor="email">Email</label>
           <input className={inputClass} id="email" name="email" type="email" value={form.email}
-                 onChange={handleChange} autoComplete="email" aria-invalid={!!fieldErrors.email} />
-          {fieldErrors.email && <p className={fieldErrorClass} role="alert">{fieldErrors.email}</p>}
+                 onChange={handleChange} autoComplete="email" aria-invalid={!!fieldErrors.email}
+                 aria-describedby={displayedError ? 'login-error' : undefined} />
         </div>
 
         {/* Password */}
@@ -117,13 +121,13 @@ export default function LoginPage() {
             <input className={passwordInputClass} id="password" name="password"
                    type={showPassword ? 'text' : 'password'} value={form.password}
                    onChange={handleChange} autoComplete="current-password"
-                   aria-invalid={!!fieldErrors.password} />
+                   aria-invalid={!!fieldErrors.password}
+                   aria-describedby={displayedError ? 'login-error' : undefined} />
             <button type="button" className={eyeBtnClass} onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}>
               <EyeIcon off={showPassword} />
             </button>
           </div>
-          {fieldErrors.password && <p className={fieldErrorClass} role="alert">{fieldErrors.password}</p>}
         </div>
 
         <button type="submit" className="mt-1 w-full p-3" disabled={submitting}>

@@ -65,10 +65,10 @@ export default function ChatPage() {
         {messages.map((m, i) => (
           <div
             key={i}
-            className={`max-w-[75%] border px-3.5 py-[9px] ${
+            className={`w-fit max-w-[75%] break-words whitespace-pre-wrap border px-3.5 py-[9px] ${
               m.from === 'user'
                 ? 'self-end rounded-[14px] rounded-br-[4px] border-[var(--primary)] bg-[var(--primary)] text-white'
-                : `rounded-[14px] rounded-bl-[4px] border-[var(--border)] bg-[var(--surface)] ${
+                : `self-start rounded-[14px] rounded-bl-[4px] border-[var(--border)] bg-[var(--surface)] ${
                     m.isError ? 'text-[var(--danger)]' : ''
                   }`
             }`}

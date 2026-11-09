@@ -1,4 +1,4 @@
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api, getErrorMessage, getFieldErrors } from '../services/api';
@@ -25,6 +25,7 @@ export default function ProfilePage() {
   const { user, updateUser, logout } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('profile');
+  const [confirmation, setConfirmation] = useState<'save' | 'delete' | null>(null);
 
   /* ---------- User profile ---------- */
   const [name, setName] = useState(user?.name ?? '');
@@ -39,8 +40,7 @@ export default function ProfilePage() {
     setProfileSuccess('');
   };
 
-  const handleProfileSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleProfileSave = async () => {
     setProfileError('');
     setProfileSuccess('');
     setProfileFieldErrors({});
@@ -59,7 +59,6 @@ export default function ProfilePage() {
   };
 
   /* ---------- Delete account ---------- */
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
 
@@ -75,6 +74,22 @@ export default function ProfilePage() {
       setDeleting(false);
     }
   };
+
+  const handleConfirmation = async () => {
+    const action = confirmation;
+    setConfirmation(null);
+    if (action === 'save') await handleProfileSave();
+    if (action === 'delete') await handleDeleteAccount();
+  };
+
+  useEffect(() => {
+    if (!confirmation) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !profileSaving && !deleting) setConfirmation(null);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [confirmation, deleting, profileSaving]);
 
   /* ---------- Update password ---------- */
   const emptyPasswords = { currentPassword: '', newPassword: '', confirmPassword: '' };
@@ -152,7 +167,13 @@ export default function ProfilePage() {
 
         {tab === 'profile' && (
           <>
-            <form onSubmit={handleProfileSubmit} noValidate>
+            <form
+              onSubmit={(event: FormEvent<HTMLFormElement>) => {
+                event.preventDefault();
+                setConfirmation('save');
+              }}
+              noValidate
+            >
               {profileError && <p className={formErrorClass} role="alert">{profileError}</p>}
               {profileSuccess && <p className={successClass} role="status">{profileSuccess}</p>}
 
@@ -186,29 +207,17 @@ export default function ProfilePage() {
 
               {deleteError && <p className={formErrorClass} role="alert">{deleteError}</p>}
 
-              {!confirmingDelete ? (
-                <button type="button"
-                        className="bg-[var(--danger)] hover:bg-[#96281f]"
-                        onClick={() => setConfirmingDelete(true)}>
-                  Delete account
-                </button>
-              ) : (
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="text-[0.9rem] font-semibold">Are you sure?</span>
-                  <button type="button"
-                          className="bg-[var(--danger)] hover:bg-[#96281f]"
-                          disabled={deleting}
-                          onClick={handleDeleteAccount}>
-                    {deleting ? 'Deleting...' : 'Yes, delete my account'}
-                  </button>
-                  <button type="button"
-                          className="border-[1.5px] border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--bg)]"
-                          disabled={deleting}
-                          onClick={() => setConfirmingDelete(false)}>
-                    Cancel
-                  </button>
-                </div>
-              )}
+              <button
+                type="button"
+                className="bg-[var(--danger)] hover:bg-[#96281f]"
+                disabled={deleting}
+                onClick={() => {
+                  setDeleteError('');
+                  setConfirmation('delete');
+                }}
+              >
+                {deleting ? 'Deleting...' : 'Delete account'}
+              </button>
             </div>
           </>
         )}
@@ -228,6 +237,43 @@ export default function ProfilePage() {
           </form>
         )}
       </div>
+
+      {confirmation && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0e3b43]/50 px-4"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setConfirmation(null);
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="profile-confirmation-title"
+            className="w-full max-w-[400px] rounded-xl border border-[var(--border)] bg-white p-6 text-[var(--text)] shadow-xl"
+          >
+            <h2 id="profile-confirmation-title" className="mb-2 text-[1.15rem]">
+              {confirmation === 'save' ? 'Save changes?' : 'Delete account?'}
+            </h2>
+            <p className="mb-5 text-[0.9rem] text-[var(--muted)]">
+              {confirmation === 'save'
+                ? 'Do you want to save your profile changes?'
+                : 'Your account will be deactivated and you will be signed out. This action cannot be undone here.'}
+            </p>
+            <div className="flex justify-end gap-2">
+              <button type="button" className="btn-secondary" autoFocus onClick={() => setConfirmation(null)}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={confirmation === 'delete' ? 'btn-danger' : ''}
+                onClick={handleConfirmation}
+              >
+                {confirmation === 'save' ? 'Save changes' : 'Delete account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

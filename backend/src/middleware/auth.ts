@@ -19,54 +19,45 @@ export function signToken(user: HydratedDocument<IUser>): string {
 }
 
 // Checks the JWT token and attaches the logged-in user to req.user
-export const authenticate = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+  // Token format: "Authorization: Bearer <token>"
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Authentication required" });
+  }
+
+  // 1. Check the token. Only a bad or expired token is a 401.
+  const secret = getSecret();
+  let decoded: JwtPayload;
+
   try {
-    // Token format: "Authorization: Bearer <token>"
-    const header = req.headers.authorization || "";
-    const token = header.startsWith("Bearer ") ? header.slice(7) : null;
+    decoded = jwt.verify(token, secret) as JwtPayload;
+  } catch (error) {
+    return res.status(401).json({ success: false, message: "Invalid or expired token" });
+  }
 
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        message: "Authentication required",
-      });
-    }
-
-    // Throws an error if the token is invalid or expired
-    const decoded = jwt.verify(token, getSecret()) as JwtPayload;
-
-    // Loaded fresh each time, so deactivation or role changes apply immediately
+  // 2. Load the user. Loaded fresh each time, so deactivation or role changes apply immediately.
+  try {
     const user = await User.findById(decoded.sub);
 
     if (!user || !user.isActive) {
-      return res.status(401).json({
-        success: false,
-        message: "Account not available",
-      });
+      return res.status(401).json({ success: false, message: "Account not available" });
     }
 
     req.user = user;
     next();
   } catch (error) {
-    return res.status(401).json({
-      success: false,
-      message: "Invalid or expired token",
-    });
+    // A database problem is not the user's fault, so do not log them out
+    return res.status(500).json({ success: false, message: "Something went wrong" });
   }
 };
 
 // Allows only users with the given role, for example requireRole('admin')
-export const requireRole =
-  (role: Role) => (req: Request, res: Response, next: NextFunction) => {
-    if (req.user?.role !== role) {
-      return res.status(403).json({
-        success: false,
-        message: "You do not have permission to do this",
-      });
-    }
-    next();
-  };
+export const requireRole = (role: Role) => (req: Request, res: Response, next: NextFunction) => {
+  if (req.user?.role !== role) {
+    return res.status(403).json({ success: false, message: "You do not have permission to do this" });
+  }
+  next();
+};

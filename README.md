@@ -8,7 +8,6 @@
 # Terminal 1 - API
 cd backend
 npm install
-cp .env.example .env      # set a strong JWT_SECRET
 npm start
 
 # Terminal 2 - UI 

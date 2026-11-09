@@ -9,32 +9,23 @@ export const sendMessage = async (req: Request, res: Response) => {
 
     // Validation
     if (typeof message !== "string" || !message.trim()) {
-      return res.status(400).json({
-        success: false,
-        message: "Message is required",
-      });
+      return res.status(400).json({ success: false, message: "Message is required" });
     }
 
     if (message.length > 500) {
-      return res.status(400).json({
-        success: false,
-        message: "Message must be 500 characters or fewer",
-      });
+      return res.status(400).json({ success: false, message: "Message must be 500 characters or fewer" });
     }
 
-    const cleanMessage = message.trim();
+    const text = message.trim();
 
-    await logActivity(req, "chat_message", cleanMessage.slice(0, 200));
+    await logActivity(req, "chat_message", text.slice(0, 200));
 
     return res.status(200).json({
       success: true,
       message: "Reply generated successfully",
-      data: { reply: getReply(cleanMessage) },
+      data: { reply: getReply(text) },
     });
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to process message",
-    });
+    return res.status(500).json({ success: false, message: "Failed to process message" });
   }
 };
